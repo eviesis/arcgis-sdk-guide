@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Reference — ArcGIS Maps SDK for JavaScript</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-dot"></span>ArcGIS SDK Guide</a>
+    <ul class="nav-links">
+      <li><a href="map-rendering.html">Map Rendering</a></li>
+      <li><a href="layer-management.html">Layer Management</a></li>
+      <li><a href="spatial-queries.html">Spatial Queries</a></li>
+      <li><a href="api-reference.html" aria-current="page">API Reference</a></li>
+      <li><a href="blog.html" class="nav-cta">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Classes</div>
+    <ul class="sidebar-nav">
+      <li><a href="#Map" class="active">Map</a></li>
+      <li><a href="#MapView">MapView</a></li>
+      <li><a href="#FeatureLayer">FeatureLayer</a></li>
+      <li><a href="#GraphicsLayer">GraphicsLayer</a></li>
+      <li><a href="#Graphic">Graphic</a></li>
+      <li><a href="#Query">Query</a></li>
+    </ul>
+  </aside>
+
+  <article class="article-content">
+    <div class="article-header">
+      <div class="article-eyebrow">Reference</div>
+      <h1 class="article-title">API Reference</h1>
+      <div class="article-meta">
+        <span>ArcGIS Maps SDK for JavaScript v4.29</span>
+        <span>·</span>
+        <span>Core classes used in these tutorials</span>
+      </div>
+    </div>
+
+    <p>This reference covers the six classes used across the tutorials. For the complete SDK API, see the <a href="https://developers.arcgis.com/javascript/latest/api-reference/" target="_blank" rel="noopener">official Esri API reference →</a></p>
+
+    <div class="api-section">
+      <h2 id="Map">Map</h2>
+      <p>The <code>Map</code> class holds the map's data model — its basemap and layers. It does not render anything itself; a <code>MapView</code> or <code>SceneView</code> does the rendering.</p>
+      <p><strong>Module path:</strong> <code>esri/Map</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">new Map(properties)</div>
+        <div class="api-class-desc">Constructor properties</div>
+        <table class="api-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>basemap</code></td><td class="api-type">String | Basemap</td><td>The basemap to display. Accepts a named string (<code>"streets"</code>, <code>"satellite"</code>, etc.) or a <code>Basemap</code> instance.</td></tr>
+            <tr><td><code>layers</code> <span class="api-optional">optional</span></td><td class="api-type">Collection&lt;Layer&gt;</td><td>Initial set of operational layers. Can also be added later via <code>map.layers.add()</code>.</td></tr>
+            <tr><td><code>ground</code> <span class="api-optional">optional</span></td><td class="api-type">String | Ground</td><td>The surface model. Used with <code>SceneView</code>. Pass <code>"world-elevation"</code> for a realistic terrain surface.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-filename">example</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({
+  basemap: <span class="str">"topo-vector"</span>,
+  layers: [featureLayer]
+});</code></pre>
+      </div>
+    </div>
+
+    <div class="api-section">
+      <h2 id="MapView">MapView</h2>
+      <p>Renders a <code>Map</code> in 2D. Controls the camera (zoom, centre, extent), handles user interaction, and provides methods for converting between screen and map coordinates.</p>
+      <p><strong>Module path:</strong> <code>esri/views/MapView</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">new MapView(properties)</div>
+        <div class="api-class-desc">Constructor properties</div>
+        <table class="api-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>container</code></td><td class="api-type">String | HTMLElement</td><td>The ID of the DOM element (or the element itself) where the map renders.</td></tr>
+            <tr><td><code>map</code></td><td class="api-type">Map</td><td>The <code>Map</code> instance to render.</td></tr>
+            <tr><td><code>zoom</code> <span class="api-optional">optional</span></td><td class="api-type">Number</td><td>Initial zoom level. 0 = world, 23 = building level.</td></tr>
+            <tr><td><code>center</code> <span class="api-optional">optional</span></td><td class="api-type">[longitude, latitude]</td><td>Initial map centre as <code>[longitude, latitude]</code>.</td></tr>
+            <tr><td><code>extent</code> <span class="api-optional">optional</span></td><td class="api-type">Extent</td><td>Initial map extent. Overrides <code>zoom</code> and <code>center</code> if set.</td></tr>
+            <tr><td><code>ui</code> <span class="api-optional">optional</span></td><td class="api-type">DefaultUI</td><td>Controls built-in UI components (compass, zoom buttons, attribution).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="api-class">
+        <div class="api-class-name">Key methods</div>
+        <div class="api-class-desc"></div>
+        <table class="api-table">
+          <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>when(callback)</code></td><td class="api-type">Promise</td><td>Fires when the view is ready to interact with. Use this before querying or manipulating layers.</td></tr>
+            <tr><td><code>goTo(target)</code></td><td class="api-type">Promise</td><td>Animates the camera to a target (extent, graphic, geometry, or coordinate).</td></tr>
+            <tr><td><code>toMap(screenPoint)</code></td><td class="api-type">Point</td><td>Converts a screen pixel coordinate to a map coordinate.</td></tr>
+            <tr><td><code>toScreen(mapPoint)</code></td><td class="api-type">ScreenPoint</td><td>Converts a map coordinate to a screen pixel coordinate.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="api-section">
+      <h2 id="FeatureLayer">FeatureLayer</h2>
+      <p>Connects to a hosted ArcGIS feature service. Handles querying, rendering, popups, and editing. The most commonly used layer type.</p>
+      <p><strong>Module path:</strong> <code>esri/layers/FeatureLayer</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">new FeatureLayer(properties)</div>
+        <div class="api-class-desc">Constructor properties (most commonly used)</div>
+        <table class="api-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>url</code></td><td class="api-type">String</td><td>URL to the feature service endpoint.</td></tr>
+            <tr><td><code>title</code> <span class="api-optional">optional</span></td><td class="api-type">String</td><td>Layer title shown in the legend and LayerList.</td></tr>
+            <tr><td><code>visible</code> <span class="api-optional">optional</span></td><td class="api-type">Boolean</td><td>Whether the layer is visible on load. Default: <code>true</code>.</td></tr>
+            <tr><td><code>renderer</code> <span class="api-optional">optional</span></td><td class="api-type">Renderer</td><td>Controls how features are drawn. Accepts <code>SimpleRenderer</code>, <code>UniqueValueRenderer</code>, <code>ClassBreaksRenderer</code>.</td></tr>
+            <tr><td><code>popupTemplate</code> <span class="api-optional">optional</span></td><td class="api-type">PopupTemplate</td><td>Defines the popup that appears when a feature is clicked.</td></tr>
+            <tr><td><code>outFields</code> <span class="api-optional">optional</span></td><td class="api-type">String[]</td><td>Fields to load from the service. Use <code>["*"]</code> for all. Restricting fields improves performance.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="api-class">
+        <div class="api-class-name">Key methods</div>
+        <div class="api-class-desc"></div>
+        <table class="api-table">
+          <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>queryFeatures(query)</code></td><td class="api-type">Promise&lt;FeatureSet&gt;</td><td>Executes a query and returns matching features.</td></tr>
+            <tr><td><code>queryFeatureCount(query)</code></td><td class="api-type">Promise&lt;Number&gt;</td><td>Returns the count of features matching the query without fetching geometry or attributes.</td></tr>
+            <tr><td><code>createQuery()</code></td><td class="api-type">Query</td><td>Creates a <code>Query</code> object pre-populated with the layer's default query parameters.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="api-section">
+      <h2 id="GraphicsLayer">GraphicsLayer</h2>
+      <p>A client-side layer for displaying <code>Graphic</code> objects you create in code. Use it for user-drawn shapes, query result highlights, or any dynamic geometry.</p>
+      <p><strong>Module path:</strong> <code>esri/layers/GraphicsLayer</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">Key properties & methods</div>
+        <div class="api-class-desc"></div>
+        <table class="api-table">
+          <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>graphics</code></td><td class="api-type">Collection&lt;Graphic&gt;</td><td>The collection of all graphics in the layer. Use <code>.add()</code>, <code>.remove()</code>, <code>.removeAll()</code>.</td></tr>
+            <tr><td><code>visible</code></td><td class="api-type">Boolean</td><td>Toggle layer visibility.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="api-section">
+      <h2 id="Graphic">Graphic</h2>
+      <p>The basic visual unit. A <code>Graphic</code> has a geometry (where it is), a symbol (how it looks), attributes (data), and optionally a popup template.</p>
+      <p><strong>Module path:</strong> <code>esri/Graphic</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">new Graphic(properties)</div>
+        <div class="api-class-desc"></div>
+        <table class="api-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>geometry</code></td><td class="api-type">Geometry</td><td>The shape: <code>Point</code>, <code>Polyline</code>, <code>Polygon</code>, or <code>Extent</code>.</td></tr>
+            <tr><td><code>symbol</code></td><td class="api-type">Symbol</td><td>How the geometry is drawn: <code>SimpleMarkerSymbol</code>, <code>SimpleLineSymbol</code>, <code>SimpleFillSymbol</code>, <code>PictureMarkerSymbol</code>.</td></tr>
+            <tr><td><code>attributes</code> <span class="api-optional">optional</span></td><td class="api-type">Object</td><td>Key-value data attached to the graphic. Referenced in popup templates using <code>{fieldName}</code> syntax.</td></tr>
+            <tr><td><code>popupTemplate</code> <span class="api-optional">optional</span></td><td class="api-type">PopupTemplate</td><td>Popup shown when the graphic is clicked.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="api-section">
+      <h2 id="Query">Query</h2>
+      <p>Defines the parameters for a <code>FeatureLayer.queryFeatures()</code> call. Set attribute conditions, spatial filters, output fields, and pagination.</p>
+      <p><strong>Module path:</strong> <code>esri/rest/support/Query</code></p>
+
+      <div class="api-class">
+        <div class="api-class-name">new Query(properties)</div>
+        <div class="api-class-desc"></div>
+        <table class="api-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>where</code></td><td class="api-type">String</td><td>SQL WHERE clause. Example: <code>"magnitude > 5 AND depth < 20"</code>. Use <code>"1=1"</code> to match all features.</td></tr>
+            <tr><td><code>geometry</code> <span class="api-optional">optional</span></td><td class="api-type">Geometry</td><td>Spatial filter geometry. Combined with <code>spatialRelationship</code>.</td></tr>
+            <tr><td><code>spatialRelationship</code> <span class="api-optional">optional</span></td><td class="api-type">String</td><td>How to apply the geometry filter. Options: <code>"intersects"</code> (default), <code>"contains"</code>, <code>"within"</code>, <code>"touches"</code>, <code>"overlaps"</code>.</td></tr>
+            <tr><td><code>outFields</code></td><td class="api-type">String[]</td><td>Fields to return. <code>["*"]</code> returns all. Limiting fields improves performance on large datasets.</td></tr>
+            <tr><td><code>returnGeometry</code></td><td class="api-type">Boolean</td><td>Whether to return feature geometries. Set to <code>true</code> when you need to display results on the map.</td></tr>
+            <tr><td><code>num</code> <span class="api-optional">optional</span></td><td class="api-type">Number</td><td>Max features to return per request. Default is the server's limit (often 1000 or 2000).</td></tr>
+            <tr><td><code>start</code> <span class="api-optional">optional</span></td><td class="api-type">Number</td><td>Zero-based offset for pagination. Use with <code>num</code> to page through results.</td></tr>
+            <tr><td><code>orderByFields</code> <span class="api-optional">optional</span></td><td class="api-type">String[]</td><td>Sort fields. Example: <code>["magnitude DESC"]</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="spatial-queries.html">← Tutorial 03: Spatial Queries</a>
+      <a href="blog.html" class="next">Blog post →</a>
+    </div>
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · <a href="../index.html">Home</a></p>
+  </div>
+</footer>
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map Rendering — ArcGIS Maps SDK for JavaScript</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-dot"></span>ArcGIS SDK Guide</a>
+    <ul class="nav-links">
+      <li><a href="map-rendering.html" aria-current="page">Map Rendering</a></li>
+      <li><a href="layer-management.html">Layer Management</a></li>
+      <li><a href="spatial-queries.html">Spatial Queries</a></li>
+      <li><a href="api-reference.html">API Reference</a></li>
+      <li><a href="blog.html" class="nav-cta">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">On this page</div>
+    <ul class="sidebar-nav">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#step1">1. Project setup</a></li>
+      <li><a href="#step2">2. Load the SDK</a></li>
+      <li><a href="#step3">3. Create the Map</a></li>
+      <li><a href="#step4">4. Initialise the MapView</a></li>
+      <li><a href="#step5">5. Set camera & extent</a></li>
+      <li><a href="#step6">6. Full example</a></li>
+      <li><a href="#next">Next steps</a></li>
+    </ul>
+  </aside>
+
+  <article class="article-content">
+    <div class="article-header">
+      <div class="article-eyebrow">Tutorial 01 — Beginner · ~15 min</div>
+      <h1 class="article-title">Map Rendering</h1>
+      <div class="article-meta">
+        <span>Prerequisites: basic JavaScript, ArcGIS API key</span>
+        <span>·</span>
+        <span>No build step required</span>
+      </div>
+    </div>
+
+    <h2 id="overview">Overview</h2>
+    <p>This tutorial walks you through initialising your first ArcGIS map in the browser — from a blank HTML file to a fully interactive map with a chosen basemap and camera position. By the end you will understand the relationship between the <code>Map</code> class and the <code>MapView</code> class, which is the conceptual foundation for everything else in the SDK.</p>
+
+    <div class="callout callout-note">
+      <strong>Note</strong>
+      <p>The ArcGIS Maps SDK for JavaScript uses AMD modules loaded via the Esri CDN. You do not need Node.js or a bundler for these tutorials — everything runs in a plain HTML file.</p>
+    </div>
+
+    <h2 id="step1">Step 1 — Project setup</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Create your HTML file</h3>
+        <p>Create a new folder and inside it create a file called <code>index.html</code>. Add the following boilerplate:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="tag-h">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-h">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag-h">&gt;</span>
+<span class="tag-h">&lt;head&gt;</span>
+  <span class="tag-h">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;title&gt;</span>My First ArcGIS Map<span class="tag-h">&lt;/title&gt;</span>
+<span class="tag-h">&lt;/head&gt;</span>
+<span class="tag-h">&lt;body&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"viewDiv"</span><span class="tag-h">&gt;&lt;/div&gt;</span>
+<span class="tag-h">&lt;/body&gt;</span>
+<span class="tag-h">&lt;/html&gt;</span></code></pre>
+        </div>
+        <p>The <code>viewDiv</code> element is where the map will be rendered. Make it fill the viewport with CSS:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html — &lt;head&gt; styles</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="tag-h">&lt;style&gt;</span>
+  <span class="prop">html</span>, <span class="prop">body</span>, <span class="prop">#viewDiv</span> {
+    <span class="prop">height</span>: <span class="num">100%</span>;
+    <span class="prop">margin</span>: <span class="num">0</span>;
+    <span class="prop">padding</span>: <span class="num">0</span>;
+  }
+<span class="tag-h">&lt;/style&gt;</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="step2">Step 2 — Load the SDK</h2>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Add the Esri CDN links</h3>
+        <p>The SDK is loaded from Esri's CDN. Add these two lines to your <code>&lt;head&gt;</code>:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html — &lt;head&gt;</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="tag-h">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span>
+  <span class="attr">href</span>=<span class="str">"https://js.arcgis.com/4.29/esri/themes/light/main.css"</span><span class="tag-h">&gt;</span>
+<span class="tag-h">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://js.arcgis.com/4.29/"</span><span class="tag-h">&gt;&lt;/script&gt;</span></code></pre>
+        </div>
+        <div class="callout callout-tip">
+          <strong>Tip</strong>
+          <p>Pin to a specific version (e.g. <code>4.29</code>) rather than loading <code>latest</code> so your app doesn't break when Esri ships breaking changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="step3">Step 3 — Create the Map</h2>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Require the Map module and set a basemap</h3>
+        <p>Add a <code>&lt;script&gt;</code> tag below your <code>viewDiv</code>. Use <code>require()</code> to import the modules you need:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="tag-h">&lt;script&gt;</span>
+  <span class="fn">require</span>([
+    <span class="str">"esri/Map"</span>,
+    <span class="str">"esri/views/MapView"</span>
+  ], <span class="kw">function</span>(Map, MapView) {
+
+    <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({
+      basemap: <span class="str">"streets-navigation-vector"</span>
+    });
+
+  });
+<span class="tag-h">&lt;/script&gt;</span></code></pre>
+        </div>
+        <p>The <code>basemap</code> property accepts any of Esri's named basemap strings. Common options:</p>
+        <ul>
+          <li><code>"streets-navigation-vector"</code> — clean street map (default for web apps)</li>
+          <li><code>"satellite"</code> — aerial imagery</li>
+          <li><code>"topo-vector"</code> — topographic</li>
+          <li><code>"dark-gray-vector"</code> — dark theme</li>
+          <li><code>"osm"</code> — OpenStreetMap</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 id="step4">Step 4 — Initialise the MapView</h2>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Connect the map to the DOM</h3>
+        <p>The <code>Map</code> object holds data. The <code>MapView</code> renders it. They are separate by design — the same <code>Map</code> can power both a <code>MapView</code> (2D) and a <code>SceneView</code> (3D).</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html — inside require callback</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({
+  container: <span class="str">"viewDiv"</span>,  <span class="cm">// matches our div id</span>
+  map: map,
+  zoom: <span class="num">13</span>,
+  center: [<span class="num">-122.4194</span>, <span class="num">37.7749</span>]  <span class="cm">// [longitude, latitude]</span>
+});</code></pre>
+        </div>
+        <div class="callout callout-note">
+          <strong>Important</strong>
+          <p>ArcGIS uses <strong>[longitude, latitude]</strong> order — the opposite of many mapping libraries. <code>center: [-122.4194, 37.7749]</code> puts you in San Francisco.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="step5">Step 5 — Set camera and extent</h2>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>Fine-tune the viewport</h3>
+        <p>Instead of <code>zoom</code> and <code>center</code>, you can define a precise geographic extent using the <code>extent</code> property:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({
+  container: <span class="str">"viewDiv"</span>,
+  map: map,
+  extent: {
+    xmin: <span class="num">-122.5</span>,
+    ymin: <span class="num">37.7</span>,
+    xmax: <span class="num">-122.35</span>,
+    ymax: <span class="num">37.85</span>,
+    spatialReference: { wkid: <span class="num">4326</span> }  <span class="cm">// WGS84</span>
+  }
+});</code></pre>
+        </div>
+        <p><code>wkid: 4326</code> is the EPSG code for WGS84 — standard lat/lon coordinates. You'll encounter this constantly in geospatial work.</p>
+      </div>
+    </div>
+
+    <h2 id="step6">Full example</h2>
+    <p>Here is the complete file. Open it in your browser — you should see an interactive street map centred on San Francisco.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">index.html — complete</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="tag-h">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-h">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag-h">&gt;</span>
+<span class="tag-h">&lt;head&gt;</span>
+  <span class="tag-h">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;title&gt;</span>My First ArcGIS Map<span class="tag-h">&lt;/title&gt;</span>
+  <span class="tag-h">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span>
+    <span class="attr">href</span>=<span class="str">"https://js.arcgis.com/4.29/esri/themes/light/main.css"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://js.arcgis.com/4.29/"</span><span class="tag-h">&gt;&lt;/script&gt;</span>
+  <span class="tag-h">&lt;style&gt;</span>
+    <span class="prop">html</span>, <span class="prop">body</span>, <span class="prop">#viewDiv</span> { <span class="prop">height</span>: <span class="num">100%</span>; <span class="prop">margin</span>: <span class="num">0</span>; <span class="prop">padding</span>: <span class="num">0</span>; }
+  <span class="tag-h">&lt;/style&gt;</span>
+<span class="tag-h">&lt;/head&gt;</span>
+<span class="tag-h">&lt;body&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"viewDiv"</span><span class="tag-h">&gt;&lt;/div&gt;</span>
+  <span class="tag-h">&lt;script&gt;</span>
+    <span class="fn">require</span>([
+      <span class="str">"esri/Map"</span>,
+      <span class="str">"esri/views/MapView"</span>
+    ], <span class="kw">function</span>(Map, MapView) {
+
+      <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({
+        basemap: <span class="str">"streets-navigation-vector"</span>
+      });
+
+      <span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({
+        container: <span class="str">"viewDiv"</span>,
+        map: map,
+        zoom: <span class="num">13</span>,
+        center: [<span class="num">-122.4194</span>, <span class="num">37.7749</span>]
+      });
+
+      view.<span class="fn">when</span>(<span class="kw">function</span>() {
+        console.<span class="fn">log</span>(<span class="str">"Map is ready!"</span>);
+      });
+
+    });
+  <span class="tag-h">&lt;/script&gt;</span>
+<span class="tag-h">&lt;/body&gt;</span>
+<span class="tag-h">&lt;/html&gt;</span></code></pre>
+    </div>
+
+    <h2 id="next">Next steps</h2>
+    <p>Now that you have a map rendering, the next tutorial covers adding data to it using layers.</p>
+    <div class="page-nav">
+      <span></span>
+      <a href="layer-management.html" class="next">Tutorial 02: Layer Management →</a>
+    </div>
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · ArcGIS Maps SDK for JavaScript Developer Guide · <a href="../index.html">Home</a></p>
+  </div>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  const text = code.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+const sections = document.querySelectorAll('h2[id], h3[id]');
+const links = document.querySelectorAll('.sidebar-nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+  links.forEach(l => { l.classList.toggle('active', l.getAttribute('href') === '#' + current); });
+});
+</script>
+</body>
+</html>

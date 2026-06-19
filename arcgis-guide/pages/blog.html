@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why ArcGIS Maps SDK for JavaScript — Developer Guide Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-dot"></span>ArcGIS SDK Guide</a>
+    <ul class="nav-links">
+      <li><a href="map-rendering.html">Map Rendering</a></li>
+      <li><a href="layer-management.html">Layer Management</a></li>
+      <li><a href="spatial-queries.html">Spatial Queries</a></li>
+      <li><a href="api-reference.html">API Reference</a></li>
+      <li><a href="blog.html" class="nav-cta" aria-current="page">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<div class="blog-hero">
+  <div class="blog-hero-inner">
+    <div class="article-eyebrow">Getting started · 8 min read</div>
+    <h1 class="article-title">Why ArcGIS Maps SDK for JavaScript is the right choice for your next mapping project</h1>
+    <div class="article-meta">
+      <span>By Eva Sharma</span>
+      <span>·</span>
+      <span>GIS Developer Advocate</span>
+    </div>
+  </div>
+</div>
+
+<div class="blog-body">
+  <p>If you've spent any time looking for a JavaScript mapping library, you know the options multiply fast. Leaflet, Mapbox GL JS, OpenLayers, Google Maps, HERE, deck.gl — and now ArcGIS Maps SDK for JavaScript. The natural question is: why this one?</p>
+
+  <p>The answer isn't that ArcGIS is always the best choice. It isn't. But for a specific class of project — one that needs to work with real geospatial data, run analysis in the browser or on a server, and connect to enterprise GIS infrastructure — it's the most complete toolkit available. This post breaks down where it fits, what it handles better than its alternatives, and when you might be better served by something simpler.</p>
+
+  <h2>What the ArcGIS Maps SDK actually is</h2>
+
+  <p>The SDK is Esri's JavaScript library for building mapping applications that connect to the ArcGIS platform. At its core it's a rendering engine — it takes geospatial data from feature services, tile services, and scene services and draws them on a map. But it's considerably more than that.</p>
+
+  <p>The distinguishing feature is the depth of the geospatial tooling baked in: a full geometry engine (buffer, union, intersect, geodesic operations), a routing and directions engine, a geoprocessing framework for running server-side spatial analysis, and a query system that pushes SQL-like filters down to the server rather than pulling all features to the client.</p>
+
+  <p>Most mapping libraries treat the map as a rendering surface. ArcGIS treats it as a data platform with a rendering surface on top.</p>
+
+  <h2>Head-to-head comparison</h2>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>ArcGIS Maps SDK</th>
+        <th>Mapbox GL JS</th>
+        <th>Leaflet</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2D map rendering</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+      </tr>
+      <tr>
+        <td>3D / SceneView</td>
+        <td class="check">✓ (built-in)</td>
+        <td class="partial">Partial</td>
+        <td class="cross">✗</td>
+      </tr>
+      <tr>
+        <td>Server-side spatial queries</td>
+        <td class="check">✓ (native)</td>
+        <td class="cross">✗</td>
+        <td class="cross">✗</td>
+      </tr>
+      <tr>
+        <td>Client-side geometry engine</td>
+        <td class="check">✓ (full)</td>
+        <td class="partial">Limited</td>
+        <td class="partial">Via plugins</td>
+      </tr>
+      <tr>
+        <td>Enterprise GIS integration</td>
+        <td class="check">✓ (native)</td>
+        <td class="cross">✗</td>
+        <td class="cross">✗</td>
+      </tr>
+      <tr>
+        <td>Free tier for development</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓ (open source)</td>
+      </tr>
+      <tr>
+        <td>Learning curve</td>
+        <td class="partial">Steeper</td>
+        <td class="check">Moderate</td>
+        <td class="check">Low</td>
+      </tr>
+      <tr>
+        <td>Bundle size</td>
+        <td class="partial">Large (lazy-loaded)</td>
+        <td class="check">Moderate</td>
+        <td class="check">Small</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>When ArcGIS is the right call</h2>
+
+  <p><strong>You're connecting to enterprise GIS data.</strong> If your organisation already runs ArcGIS Server or ArcGIS Online, the SDK speaks that data format natively. Every feature service, tile service, and geoprocessing service is a first-class citizen. Trying to access those from Mapbox or Leaflet means writing your own adapters.</p>
+
+  <p><strong>You need server-side spatial queries.</strong> The SDK's <code>FeatureLayer.queryFeatures()</code> pushes filters to the server. You request only the records that match — not 50,000 features that you then filter in the browser. For large datasets this is the difference between a usable app and an unusable one.</p>
+
+  <p><strong>You're building a 3D scene.</strong> The SDK's <code>SceneView</code> is a production-grade 3D renderer. You use the same <code>Map</code> object and the same layer classes — just swap <code>MapView</code> for <code>SceneView</code>. Mapbox has some 3D capability but it's not the same depth.</p>
+
+  <p><strong>You need to run spatial analysis.</strong> Buffering, routing, geocoding, viewshed analysis — these are all available through the SDK, either client-side via <code>geometryEngine</code> or server-side via geoprocessing services. Other libraries require you to find and integrate separate services for each of these.</p>
+
+  <h2>When you might want something else</h2>
+
+  <p><strong>You're building a simple interactive map with custom styling.</strong> If the goal is a beautifully styled slippy map with custom markers and a few tooltips, Mapbox GL JS is probably a better fit. Its vector tile styling system is more flexible and its bundle is leaner.</p>
+
+  <p><strong>You want open-source all the way down.</strong> Leaflet and OpenLayers are MIT-licensed. The ArcGIS SDK requires an Esri account and API key for production use. The free tier is generous, but it's not open source.</p>
+
+  <p><strong>Bundle size is a hard constraint.</strong> The ArcGIS SDK is large. It lazy-loads modules on demand, which helps, but if you need a sub-100KB mapping widget, look elsewhere.</p>
+
+  <h2>Getting started without the overwhelm</h2>
+
+  <p>The SDK's documentation is comprehensive — which is another way of saying it can be intimidating. The API covers hundreds of classes and thousands of properties. The trick is that you don't need most of them to get started.</p>
+
+  <p>You need three things for a basic app: <code>Map</code>, <code>MapView</code>, and one layer class. That's it. The tutorials in this guide are built around that principle: show the minimum viable pattern first, then layer in complexity as needed.</p>
+
+  <p>Start with the <a href="map-rendering.html">Map Rendering tutorial</a> — you'll have something running in the browser in under 15 minutes.</p>
+
+  <div style="margin-top: 48px; padding: 24px; background: var(--sand); border-radius: var(--radius-lg);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--teal); margin-bottom: 8px;">About the author</div>
+    <p style="font-size: 14px; color: var(--text-2); margin: 0;">Eva Sharma is a GIS developer advocate and technical writer specialising in the ArcGIS platform. She currently supports Esri's developer ecosystem at Cybertech Systems and is pursuing a Master's in Computer Applications (AI/ML) at Lovely Professional University.</p>
+  </div>
+
+  <div class="page-nav">
+    <a href="api-reference.html">← API Reference</a>
+    <a href="../index.html" class="next">Back to home →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · ArcGIS Maps SDK for JavaScript Developer Guide · <a href="../index.html">Home</a></p>
+    <p class="footer-note">Independent documentation project. Not affiliated with Esri. All SDK references based on the <a href="https://developers.arcgis.com/javascript/latest/" target="_blank" rel="noopener">official documentation</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

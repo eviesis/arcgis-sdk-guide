@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Layer Management — ArcGIS Maps SDK for JavaScript</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-dot"></span>ArcGIS SDK Guide</a>
+    <ul class="nav-links">
+      <li><a href="map-rendering.html">Map Rendering</a></li>
+      <li><a href="layer-management.html" aria-current="page">Layer Management</a></li>
+      <li><a href="spatial-queries.html">Spatial Queries</a></li>
+      <li><a href="api-reference.html">API Reference</a></li>
+      <li><a href="blog.html" class="nav-cta">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">On this page</div>
+    <ul class="sidebar-nav">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#layer-types">Layer types</a></li>
+      <li><a href="#feature-layer">FeatureLayer</a></li>
+      <li><a href="#graphics-layer">GraphicsLayer</a></li>
+      <li><a href="#toggle">Toggle visibility</a></li>
+      <li><a href="#styling">Styling with renderers</a></li>
+      <li><a href="#remove">Removing layers</a></li>
+      <li><a href="#full-example">Full example</a></li>
+    </ul>
+  </aside>
+
+  <article class="article-content">
+    <div class="article-header">
+      <div class="article-eyebrow">Tutorial 02 — Intermediate · ~25 min</div>
+      <h1 class="article-title">Layer Management</h1>
+      <div class="article-meta">
+        <span>Prerequisites: Tutorial 01 complete</span>
+        <span>·</span>
+        <span>Concepts: FeatureLayer, GraphicsLayer, renderers</span>
+      </div>
+    </div>
+
+    <h2 id="overview">Overview</h2>
+    <p>Layers are how you get your data onto the map. The ArcGIS SDK has many layer types — this tutorial focuses on the two you will use most: <code>FeatureLayer</code> for querying and displaying server-hosted feature data, and <code>GraphicsLayer</code> for adding your own custom graphics programmatically.</p>
+
+    <h2 id="layer-types">Layer types — quick reference</h2>
+
+    <div class="callout callout-note">
+      <strong>The three you'll use most</strong>
+      <p><strong>FeatureLayer</strong> — connects to a hosted feature service URL and handles querying, rendering, and caching automatically. <strong>GraphicsLayer</strong> — a blank canvas for adding your own <code>Graphic</code> objects. <strong>TileLayer</strong> — displays pre-rendered map tile images, useful for basemap context layers.</p>
+    </div>
+
+    <h2 id="feature-layer">Adding a FeatureLayer</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Require the module and point to a feature service</h3>
+        <p>A <code>FeatureLayer</code> is created by pointing to the URL of an ArcGIS feature service. Esri hosts thousands of public datasets on <a href="https://www.arcgis.com/home/gallery.html" target="_blank" rel="noopener">ArcGIS Online</a>. This example uses a public US earthquake dataset:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="fn">require</span>([
+  <span class="str">"esri/Map"</span>,
+  <span class="str">"esri/views/MapView"</span>,
+  <span class="str">"esri/layers/FeatureLayer"</span>  <span class="cm">// add this</span>
+], <span class="kw">function</span>(Map, MapView, FeatureLayer) {
+
+  <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({ basemap: <span class="str">"dark-gray-vector"</span> });
+
+  <span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({
+    container: <span class="str">"viewDiv"</span>,
+    map: map,
+    zoom: <span class="num">4</span>,
+    center: [<span class="num">-98</span>, <span class="num">38</span>]  <span class="cm">// continental US</span>
+  });
+
+  <span class="kw">const</span> earthquakeLayer = <span class="kw">new</span> <span class="fn">FeatureLayer</span>({
+    url: <span class="str">"https://services.arcgis.com/Do88DoK2xjbc0LCh/arcgis/rest/services/Earthquake_Data/FeatureServer/0"</span>,
+    title: <span class="str">"Earthquakes"</span>
+  });
+
+  map.layers.<span class="fn">add</span>(earthquakeLayer);
+
+});</code></pre>
+        </div>
+        <p>The <code>map.layers</code> collection manages all layers. <code>add()</code> appends the layer to the top of the stack.</p>
+      </div>
+    </div>
+
+    <h2 id="graphics-layer">Adding a GraphicsLayer</h2>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Create a layer and add custom graphics</h3>
+        <p>A <code>GraphicsLayer</code> lets you draw anything on the map — points, lines, polygons — defined in your own JavaScript code. Each item is a <code>Graphic</code> with a <code>geometry</code> and a <code>symbol</code>:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">index.html</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="fn">require</span>([
+  <span class="str">"esri/Map"</span>,
+  <span class="str">"esri/views/MapView"</span>,
+  <span class="str">"esri/layers/GraphicsLayer"</span>,
+  <span class="str">"esri/Graphic"</span>
+], <span class="kw">function</span>(Map, MapView, GraphicsLayer, Graphic) {
+
+  <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({ basemap: <span class="str">"streets-navigation-vector"</span> });
+  <span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({ container: <span class="str">"viewDiv"</span>, map, zoom: <span class="num">13</span>, center: [<span class="num">-122.4194</span>, <span class="num">37.7749</span>] });
+
+  <span class="cm">// Create the layer</span>
+  <span class="kw">const</span> graphicsLayer = <span class="kw">new</span> <span class="fn">GraphicsLayer</span>();
+  map.layers.<span class="fn">add</span>(graphicsLayer);
+
+  <span class="cm">// Define a point geometry</span>
+  <span class="kw">const</span> point = {
+    type: <span class="str">"point"</span>,
+    longitude: <span class="num">-122.4194</span>,
+    latitude: <span class="num">37.7749</span>
+  };
+
+  <span class="cm">// Define a symbol (how the point looks)</span>
+  <span class="kw">const</span> markerSymbol = {
+    type: <span class="str">"simple-marker"</span>,
+    color: [<span class="num">226</span>, <span class="num">119</span>, <span class="num">40</span>],   <span class="cm">// orange</span>
+    outline: { color: [<span class="num">255</span>, <span class="num">255</span>, <span class="num">255</span>], width: <span class="num">2</span> }
+  };
+
+  <span class="cm">// Combine into a Graphic and add to the layer</span>
+  <span class="kw">const</span> pointGraphic = <span class="kw">new</span> <span class="fn">Graphic</span>({
+    geometry: point,
+    symbol: markerSymbol,
+    attributes: { name: <span class="str">"San Francisco"</span> },
+    popupTemplate: { title: <span class="str">"{name}"</span>, content: <span class="str">"You placed a pin here."</span> }
+  });
+
+  graphicsLayer.graphics.<span class="fn">add</span>(pointGraphic);
+
+});</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="toggle">Toggle layer visibility</h2>
+    <p>Every layer has a <code>visible</code> property. Toggle it to show or hide layers without removing them from the map:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">snippet</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="cm">// Hide a layer</span>
+earthquakeLayer.visible = <span class="kw">false</span>;
+
+<span class="cm">// Show it again</span>
+earthquakeLayer.visible = <span class="kw">true</span>;
+
+<span class="cm">// Toggle based on a checkbox</span>
+document.<span class="fn">getElementById</span>(<span class="str">"toggle"</span>).<span class="fn">addEventListener</span>(<span class="str">"change"</span>, (e) => {
+  earthquakeLayer.visible = e.target.checked;
+});</code></pre>
+    </div>
+
+    <h2 id="styling">Styling with renderers</h2>
+    <p>Renderers control how a <code>FeatureLayer</code> looks. A <code>SimpleRenderer</code> applies a single symbol to all features. A <code>ClassBreaksRenderer</code> applies different symbols based on an attribute value:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">snippet — SimpleRenderer</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">const</span> renderer = {
+  type: <span class="str">"simple"</span>,
+  symbol: {
+    type: <span class="str">"simple-marker"</span>,
+    size: <span class="str">"8px"</span>,
+    color: <span class="str">"#00b4a0"</span>,
+    outline: { color: <span class="str">"white"</span>, width: <span class="num">1</span> }
+  }
+};
+
+earthquakeLayer.renderer = renderer;</code></pre>
+    </div>
+
+    <h2 id="remove">Removing layers</h2>
+    <p>Remove a specific layer or clear all layers from the map:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">snippet</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="cm">// Remove a specific layer</span>
+map.layers.<span class="fn">remove</span>(earthquakeLayer);
+
+<span class="cm">// Remove all layers</span>
+map.layers.<span class="fn">removeAll</span>();
+
+<span class="cm">// Remove layer by index (0 = bottom of stack)</span>
+map.layers.<span class="fn">removeAt</span>(<span class="num">0</span>);</code></pre>
+    </div>
+
+    <h2 id="full-example">Full example</h2>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">index.html — complete layer management example</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="tag-h">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-h">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag-h">&gt;</span>
+<span class="tag-h">&lt;head&gt;</span>
+  <span class="tag-h">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;title&gt;</span>Layer Management<span class="tag-h">&lt;/title&gt;</span>
+  <span class="tag-h">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"https://js.arcgis.com/4.29/esri/themes/light/main.css"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://js.arcgis.com/4.29/"</span><span class="tag-h">&gt;&lt;/script&gt;</span>
+  <span class="tag-h">&lt;style&gt;</span>
+    <span class="prop">html</span>, <span class="prop">body</span>, <span class="prop">#viewDiv</span> { <span class="prop">height</span>: <span class="num">100%</span>; <span class="prop">margin</span>: <span class="num">0</span>; }
+    <span class="prop">#controls</span> {
+      <span class="prop">position</span>: absolute; <span class="prop">top</span>: <span class="num">16px</span>; <span class="prop">left</span>: <span class="num">16px</span>; <span class="prop">z-index</span>: <span class="num">10</span>;
+      <span class="prop">background</span>: white; <span class="prop">padding</span>: <span class="num">12px 16px</span>; <span class="prop">border-radius</span>: <span class="num">8px</span>;
+      <span class="prop">box-shadow</span>: <span class="num">0 2px 8px rgba(0,0,0,0.15)</span>;
+    }
+  <span class="tag-h">&lt;/style&gt;</span>
+<span class="tag-h">&lt;/head&gt;</span>
+<span class="tag-h">&lt;body&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"controls"</span><span class="tag-h">&gt;</span>
+    <span class="tag-h">&lt;label&gt;</span>
+      <span class="tag-h">&lt;input</span> <span class="attr">type</span>=<span class="str">"checkbox"</span> <span class="attr">id</span>=<span class="str">"toggle"</span> <span class="attr">checked</span><span class="tag-h">&gt;</span>
+      Show earthquake layer
+    <span class="tag-h">&lt;/label&gt;</span>
+  <span class="tag-h">&lt;/div&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"viewDiv"</span><span class="tag-h">&gt;&lt;/div&gt;</span>
+  <span class="tag-h">&lt;script&gt;</span>
+    <span class="fn">require</span>([
+      <span class="str">"esri/Map"</span>, <span class="str">"esri/views/MapView"</span>, <span class="str">"esri/layers/FeatureLayer"</span>
+    ], <span class="kw">function</span>(Map, MapView, FeatureLayer) {
+      <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({ basemap: <span class="str">"dark-gray-vector"</span> });
+      <span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({ container: <span class="str">"viewDiv"</span>, map, zoom: <span class="num">4</span>, center: [<span class="num">-98</span>, <span class="num">38</span>] });
+      <span class="kw">const</span> layer = <span class="kw">new</span> <span class="fn">FeatureLayer</span>({
+        url: <span class="str">"https://services.arcgis.com/Do88DoK2xjbc0LCh/arcgis/rest/services/Earthquake_Data/FeatureServer/0"</span>
+      });
+      map.layers.<span class="fn">add</span>(layer);
+      document.<span class="fn">getElementById</span>(<span class="str">"toggle"</span>).<span class="fn">addEventListener</span>(<span class="str">"change"</span>, e => {
+        layer.visible = e.target.checked;
+      });
+    });
+  <span class="tag-h">&lt;/script&gt;</span>
+<span class="tag-h">&lt;/body&gt;</span>
+<span class="tag-h">&lt;/html&gt;</span></code></pre>
+    </div>
+
+    <div class="page-nav">
+      <a href="map-rendering.html">← Tutorial 01: Map Rendering</a>
+      <a href="spatial-queries.html" class="next">Tutorial 03: Spatial Queries →</a>
+    </div>
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · <a href="../index.html">Home</a></p>
+  </div>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>

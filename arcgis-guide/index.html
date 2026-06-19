@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArcGIS Maps SDK for JavaScript — Developer Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-dot"></span>
+      ArcGIS SDK Guide
+    </a>
+    <ul class="nav-links">
+      <li><a href="pages/map-rendering.html">Map Rendering</a></li>
+      <li><a href="pages/layer-management.html">Layer Management</a></li>
+      <li><a href="pages/spatial-queries.html">Spatial Queries</a></li>
+      <li><a href="pages/api-reference.html">API Reference</a></li>
+      <li><a href="pages/blog.html" class="nav-cta">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-eyebrow">ArcGIS Maps SDK for JavaScript · Developer Guide</div>
+    <h1 class="hero-title">Build geospatial apps<br><em>without</em> the guesswork.</h1>
+    <p class="hero-subtitle">End-to-end tutorials, annotated code samples, and a plain-English API reference for developers new to the ArcGIS Maps SDK for JavaScript.</p>
+    <div class="hero-actions">
+      <a href="pages/map-rendering.html" class="btn-primary">Start with Map Rendering →</a>
+      <a href="pages/api-reference.html" class="btn-ghost">Browse API Reference</a>
+    </div>
+    <div class="hero-map" aria-hidden="true">
+      <div class="map-grid">
+        <div class="map-tile t1"></div><div class="map-tile t2"></div><div class="map-tile t3"></div>
+        <div class="map-tile t4"></div><div class="map-tile t5 active"></div><div class="map-tile t6"></div>
+        <div class="map-tile t7"></div><div class="map-tile t8"></div><div class="map-tile t9"></div>
+      </div>
+      <div class="map-pin">
+        <div class="pin-body"></div>
+        <div class="pin-pulse"></div>
+      </div>
+      <div class="map-coords">37.7749° N, 122.4194° W</div>
+    </div>
+  </section>
+
+  <section class="tutorials-section">
+    <div class="section-label">Tutorials</div>
+    <h2 class="section-title">Three workflows, zero fluff.</h2>
+    <p class="section-sub">Each tutorial takes you from zero to a working app. Copy the code, run it in your browser, then adapt it.</p>
+
+    <div class="tutorial-grid">
+      <a href="pages/map-rendering.html" class="tutorial-card">
+        <div class="card-number">01</div>
+        <div class="card-icon map-icon" aria-hidden="true"></div>
+        <h3>Map Rendering</h3>
+        <p>Initialise a map, set a basemap, define a camera view, and render your first scene in under 20 lines of code.</p>
+        <div class="card-meta">
+          <span class="tag">Beginner</span>
+          <span class="tag">~15 min</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="pages/layer-management.html" class="tutorial-card">
+        <div class="card-number">02</div>
+        <div class="card-icon layer-icon" aria-hidden="true"></div>
+        <h3>Layer Management</h3>
+        <p>Add, toggle, style, and remove FeatureLayers and GraphicsLayers. Learn the layer lifecycle and rendering pipeline.</p>
+        <div class="card-meta">
+          <span class="tag">Intermediate</span>
+          <span class="tag">~25 min</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="pages/spatial-queries.html" class="tutorial-card">
+        <div class="card-number">03</div>
+        <div class="card-icon query-icon" aria-hidden="true"></div>
+        <h3>Spatial Queries</h3>
+        <p>Run attribute and geometry queries against a FeatureLayer, filter results, and display them on the map.</p>
+        <div class="card-meta">
+          <span class="tag">Intermediate</span>
+          <span class="tag">~30 min</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+  <section class="prereqs-section">
+    <div class="section-label">Before you start</div>
+    <h2 class="section-title">What you need</h2>
+    <div class="prereqs-grid">
+      <div class="prereq-item">
+        <div class="prereq-check">✓</div>
+        <div>
+          <strong>Basic JavaScript</strong>
+          <p>Promises, async/await, and ES6 modules. You don't need to be an expert.</p>
+        </div>
+      </div>
+      <div class="prereq-item">
+        <div class="prereq-check">✓</div>
+        <div>
+          <strong>An ArcGIS Developer account</strong>
+          <p>Free tier works for all tutorials. <a href="https://developers.arcgis.com" target="_blank" rel="noopener">Sign up at developers.arcgis.com →</a></p>
+        </div>
+      </div>
+      <div class="prereq-item">
+        <div class="prereq-check">✓</div>
+        <div>
+          <strong>A text editor & browser</strong>
+          <p>VS Code recommended. All examples run directly in the browser — no build step.</p>
+        </div>
+      </div>
+      <div class="prereq-item">
+        <div class="prereq-check">✓</div>
+        <div>
+          <strong>An API key</strong>
+          <p>Generated from your ArcGIS Developer dashboard. We'll show you where to put it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blog-preview-section">
+    <div class="section-label">Blog</div>
+    <h2 class="section-title">The thinking behind the code.</h2>
+    <div class="blog-preview-card">
+      <div class="blog-tag">Getting started</div>
+      <h3><a href="pages/blog.html">Why ArcGIS Maps SDK for JavaScript is the right choice for your next mapping project</a></h3>
+      <p>A plain-English breakdown of where the SDK fits, what it handles better than alternatives like Leaflet or Mapbox GL, and when you might want something else instead.</p>
+      <a href="pages/blog.html" class="blog-read-more">Read the post →</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · ArcGIS Maps SDK for JavaScript Developer Guide</p>
+    <p class="footer-note">This is an independent documentation project. Not affiliated with Esri. All SDK references are based on the <a href="https://developers.arcgis.com/javascript/latest/" target="_blank" rel="noopener">official ArcGIS Maps SDK for JavaScript documentation</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

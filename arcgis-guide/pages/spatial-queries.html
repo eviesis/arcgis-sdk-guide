@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spatial Queries — ArcGIS Maps SDK for JavaScript</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="../index.html" class="nav-logo"><span class="logo-dot"></span>ArcGIS SDK Guide</a>
+    <ul class="nav-links">
+      <li><a href="map-rendering.html">Map Rendering</a></li>
+      <li><a href="layer-management.html">Layer Management</a></li>
+      <li><a href="spatial-queries.html" aria-current="page">Spatial Queries</a></li>
+      <li><a href="api-reference.html">API Reference</a></li>
+      <li><a href="blog.html" class="nav-cta">Blog</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+  </nav>
+</header>
+
+<div class="page-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">On this page</div>
+    <ul class="sidebar-nav">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#query-object">The Query object</a></li>
+      <li><a href="#attribute-query">Attribute query</a></li>
+      <li><a href="#spatial-query">Geometry query</a></li>
+      <li><a href="#display-results">Display results</a></li>
+      <li><a href="#pagination">Pagination</a></li>
+      <li><a href="#full-example">Full example</a></li>
+    </ul>
+  </aside>
+
+  <article class="article-content">
+    <div class="article-header">
+      <div class="article-eyebrow">Tutorial 03 — Intermediate · ~30 min</div>
+      <h1 class="article-title">Spatial Queries</h1>
+      <div class="article-meta">
+        <span>Prerequisites: Tutorials 01 & 02 complete</span>
+        <span>·</span>
+        <span>Concepts: Query, FeatureLayer.queryFeatures(), async/await</span>
+      </div>
+    </div>
+
+    <h2 id="overview">Overview</h2>
+    <p>Spatial queries let you ask geographic questions: "give me all earthquake features within 50km of this point" or "return every city with a population above 500,000." The ArcGIS SDK handles this through the <code>Query</code> object and the <code>FeatureLayer.queryFeatures()</code> method, which returns a <code>Promise</code> resolving to a <code>FeatureSet</code>.</p>
+
+    <div class="callout callout-note">
+      <strong>Attribute vs spatial queries</strong>
+      <p>An <strong>attribute query</strong> filters features by field values (like a SQL WHERE clause). A <strong>spatial query</strong> filters by geographic relationship — within a polygon, intersecting a line, within a buffer distance. Both use the same <code>Query</code> object; you just set different properties.</p>
+    </div>
+
+    <h2 id="query-object">The Query object</h2>
+    <p>A <code>Query</code> defines what you're asking for. The most important properties:</p>
+    <ul>
+      <li><code>where</code> — SQL WHERE clause for attribute filtering (<code>"magnitude > 5"</code>)</li>
+      <li><code>geometry</code> — a geometry to filter by spatial relationship</li>
+      <li><code>spatialRelationship</code> — how to apply the geometry (<code>"intersects"</code>, <code>"contains"</code>, <code>"within"</code>)</li>
+      <li><code>outFields</code> — which attribute fields to return (<code>["*"]</code> for all)</li>
+      <li><code>returnGeometry</code> — whether to include geometry in results (needed to display on map)</li>
+      <li><code>num</code> / <code>start</code> — for pagination</li>
+    </ul>
+
+    <h2 id="attribute-query">Attribute query — filter by field value</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Query earthquakes with magnitude above 5</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">snippet</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="fn">require</span>([
+  <span class="str">"esri/layers/FeatureLayer"</span>,
+  <span class="str">"esri/rest/support/Query"</span>
+], <span class="kw">function</span>(FeatureLayer, Query) {
+
+  <span class="kw">const</span> layer = <span class="kw">new</span> <span class="fn">FeatureLayer</span>({
+    url: <span class="str">"https://services.arcgis.com/Do88DoK2xjbc0LCh/arcgis/rest/services/Earthquake_Data/FeatureServer/0"</span>
+  });
+
+  <span class="kw">const</span> query = <span class="kw">new</span> <span class="fn">Query</span>({
+    where: <span class="str">"magnitude > 5"</span>,
+    outFields: [<span class="str">"magnitude"</span>, <span class="str">"place"</span>, <span class="str">"time"</span>],
+    returnGeometry: <span class="kw">true</span>
+  });
+
+  layer.<span class="fn">queryFeatures</span>(query).<span class="fn">then</span>(<span class="kw">function</span>(results) {
+    console.<span class="fn">log</span>(<span class="str">"Features found:"</span>, results.features.length);
+    results.features.<span class="fn">forEach</span>(feature => {
+      console.<span class="fn">log</span>(feature.attributes.place, feature.attributes.magnitude);
+    });
+  });
+
+});</code></pre>
+        </div>
+        <p><code>queryFeatures()</code> returns a Promise. When it resolves, <code>results.features</code> is an array of <code>Graphic</code> objects — each with <code>.attributes</code> and <code>.geometry</code>.</p>
+      </div>
+    </div>
+
+    <h2 id="spatial-query">Geometry query — filter by location</h2>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Find all earthquakes within a drawn polygon</h3>
+        <p>When a user clicks or draws on the map, you can use that geometry as the spatial filter. Here's a point-with-buffer example using <code>geometryEngine</code>:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">snippet — spatial query with buffer</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="fn">require</span>([
+  <span class="str">"esri/layers/FeatureLayer"</span>,
+  <span class="str">"esri/rest/support/Query"</span>,
+  <span class="str">"esri/geometry/geometryEngine"</span>,
+  <span class="str">"esri/geometry/Point"</span>
+], <span class="kw">function</span>(FeatureLayer, Query, geometryEngine, Point) {
+
+  <span class="cm">// A centre point (San Francisco)</span>
+  <span class="kw">const</span> center = <span class="kw">new</span> <span class="fn">Point</span>({
+    longitude: <span class="num">-122.4194</span>,
+    latitude: <span class="num">37.7749</span>
+  });
+
+  <span class="cm">// Create a 500km buffer polygon around the point</span>
+  <span class="kw">const</span> buffer = geometryEngine.<span class="fn">geodesicBuffer</span>(center, <span class="num">500</span>, <span class="str">"kilometers"</span>);
+
+  <span class="kw">const</span> query = <span class="kw">new</span> <span class="fn">Query</span>({
+    geometry: buffer,
+    spatialRelationship: <span class="str">"intersects"</span>,
+    outFields: [<span class="str">"*"</span>],
+    returnGeometry: <span class="kw">true</span>
+  });
+
+  layer.<span class="fn">queryFeatures</span>(query).<span class="fn">then</span>(<span class="kw">function</span>(results) {
+    console.<span class="fn">log</span>(`Found <span class="str">${results.features.length}</span> earthquakes within 500km`);
+  });
+
+});</code></pre>
+        </div>
+        <div class="callout callout-tip">
+          <strong>Tip — geodesic vs planar buffers</strong>
+          <p>Use <code>geodesicBuffer()</code> for real-world distances on a sphere. <code>buffer()</code> (planar) works fine for small areas but distorts at large distances or high latitudes.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="display-results">Display results on the map</h2>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Add query results to a GraphicsLayer</h3>
+        <p>Query results are plain <code>Graphic</code> objects — add them directly to a <code>GraphicsLayer</code> to highlight them on the map:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">snippet</span>
+            <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="kw">const</span> resultsLayer = <span class="kw">new</span> <span class="fn">GraphicsLayer</span>();
+map.layers.<span class="fn">add</span>(resultsLayer);
+
+<span class="kw">const</span> highlightSymbol = {
+  type: <span class="str">"simple-marker"</span>,
+  color: [<span class="num">255</span>, <span class="num">80</span>, <span class="num">80</span>],
+  outline: { color: <span class="str">"white"</span>, width: <span class="num">1.5</span> },
+  size: <span class="str">"10px"</span>
+};
+
+layer.<span class="fn">queryFeatures</span>(query).<span class="fn">then</span>(<span class="kw">function</span>(results) {
+  resultsLayer.graphics.<span class="fn">removeAll</span>();  <span class="cm">// clear previous results</span>
+
+  results.features.<span class="fn">forEach</span>(feature => {
+    <span class="kw">const</span> graphic = <span class="kw">new</span> <span class="fn">Graphic</span>({
+      geometry: feature.geometry,
+      symbol: highlightSymbol,
+      attributes: feature.attributes,
+      popupTemplate: {
+        title: <span class="str">"M{magnitude} — {place}"</span>,
+        content: <span class="str">"Time: {time}"</span>
+      }
+    });
+    resultsLayer.graphics.<span class="fn">add</span>(graphic);
+  });
+});</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="pagination">Pagination</h2>
+    <p>Feature services return a maximum number of records per request (often 1,000 or 2,000). Use <code>num</code> and <code>start</code> to paginate through large datasets:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">snippet — async pagination</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="kw">async function</span> <span class="fn">getAllFeatures</span>(layer, whereClause) {
+  <span class="kw">const</span> countQuery = layer.<span class="fn">createQuery</span>();
+  countQuery.where = whereClause;
+  <span class="kw">const</span> { count } = <span class="kw">await</span> layer.<span class="fn">queryFeatureCount</span>(countQuery);
+
+  <span class="kw">const</span> pageSize = <span class="num">1000</span>;
+  <span class="kw">const</span> pages = Math.<span class="fn">ceil</span>(count / pageSize);
+  <span class="kw">const</span> allFeatures = [];
+
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < pages; i++) {
+    <span class="kw">const</span> query = layer.<span class="fn">createQuery</span>();
+    query.where = whereClause;
+    query.outFields = [<span class="str">"*"</span>];
+    query.returnGeometry = <span class="kw">true</span>;
+    query.num = pageSize;
+    query.start = i * pageSize;
+
+    <span class="kw">const</span> results = <span class="kw">await</span> layer.<span class="fn">queryFeatures</span>(query);
+    allFeatures.<span class="fn">push</span>(...results.features);
+  }
+
+  <span class="kw">return</span> allFeatures;
+}</code></pre>
+    </div>
+
+    <h2 id="full-example">Full interactive example</h2>
+    <p>This example renders a map, runs an attribute query on load, and displays matching features with popups.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">spatial-query.html — complete</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code><span class="tag-h">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-h">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag-h">&gt;</span>
+<span class="tag-h">&lt;head&gt;</span>
+  <span class="tag-h">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;title&gt;</span>Spatial Query Demo<span class="tag-h">&lt;/title&gt;</span>
+  <span class="tag-h">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"https://js.arcgis.com/4.29/esri/themes/dark/main.css"</span><span class="tag-h">&gt;</span>
+  <span class="tag-h">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://js.arcgis.com/4.29/"</span><span class="tag-h">&gt;&lt;/script&gt;</span>
+  <span class="tag-h">&lt;style&gt;</span>
+    <span class="prop">html</span>, <span class="prop">body</span>, <span class="prop">#viewDiv</span> { <span class="prop">height</span>: <span class="num">100%</span>; <span class="prop">margin</span>: <span class="num">0</span>; <span class="prop">background</span>: #1a2e3f; }
+    <span class="prop">#info</span> {
+      <span class="prop">position</span>: absolute; <span class="prop">top</span>: <span class="num">16px</span>; <span class="prop">right</span>: <span class="num">16px</span>; <span class="prop">z-index</span>: <span class="num">10</span>;
+      <span class="prop">background</span>: rgba(<span class="num">26,46,63,0.9</span>); <span class="prop">color</span>: white;
+      <span class="prop">padding</span>: <span class="num">12px 16px</span>; <span class="prop">border-radius</span>: <span class="num">8px</span>; <span class="prop">font-family</span>: sans-serif;
+      <span class="prop">font-size</span>: <span class="num">14px</span>; <span class="prop">min-width</span>: <span class="num">180px</span>;
+    }
+  <span class="tag-h">&lt;/style&gt;</span>
+<span class="tag-h">&lt;/head&gt;</span>
+<span class="tag-h">&lt;body&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"info"</span><span class="tag-h">&gt;</span>Loading results...<span class="tag-h">&lt;/div&gt;</span>
+  <span class="tag-h">&lt;div</span> <span class="attr">id</span>=<span class="str">"viewDiv"</span><span class="tag-h">&gt;&lt;/div&gt;</span>
+  <span class="tag-h">&lt;script&gt;</span>
+    <span class="fn">require</span>([
+      <span class="str">"esri/Map"</span>, <span class="str">"esri/views/MapView"</span>,
+      <span class="str">"esri/layers/FeatureLayer"</span>, <span class="str">"esri/layers/GraphicsLayer"</span>,
+      <span class="str">"esri/Graphic"</span>, <span class="str">"esri/rest/support/Query"</span>
+    ], <span class="kw">function</span>(Map, MapView, FeatureLayer, GraphicsLayer, Graphic, Query) {
+
+      <span class="kw">const</span> resultsLayer = <span class="kw">new</span> <span class="fn">GraphicsLayer</span>();
+      <span class="kw">const</span> quakeLayer = <span class="kw">new</span> <span class="fn">FeatureLayer</span>({
+        url: <span class="str">"https://services.arcgis.com/Do88DoK2xjbc0LCh/arcgis/rest/services/Earthquake_Data/FeatureServer/0"</span>,
+        visible: <span class="kw">false</span>
+      });
+
+      <span class="kw">const</span> map = <span class="kw">new</span> <span class="fn">Map</span>({
+        basemap: <span class="str">"dark-gray-vector"</span>,
+        layers: [quakeLayer, resultsLayer]
+      });
+
+      <span class="kw">const</span> view = <span class="kw">new</span> <span class="fn">MapView</span>({
+        container: <span class="str">"viewDiv"</span>, map,
+        zoom: <span class="num">3</span>, center: [<span class="num">-98</span>, <span class="num">38</span>]
+      });
+
+      <span class="kw">const</span> query = <span class="kw">new</span> <span class="fn">Query</span>({
+        where: <span class="str">"magnitude >= 6"</span>,
+        outFields: [<span class="str">"magnitude"</span>, <span class="str">"place"</span>],
+        returnGeometry: <span class="kw">true</span>
+      });
+
+      quakeLayer.<span class="fn">queryFeatures</span>(query).<span class="fn">then</span>(<span class="kw">function</span>(results) {
+        document.<span class="fn">getElementById</span>(<span class="str">"info"</span>).textContent =
+          `M6+ earthquakes: <span class="str">${results.features.length}</span>`;
+
+        results.features.<span class="fn">forEach</span>(f => {
+          resultsLayer.graphics.<span class="fn">add</span>(<span class="kw">new</span> <span class="fn">Graphic</span>({
+            geometry: f.geometry,
+            symbol: { type: <span class="str">"simple-marker"</span>, color: [<span class="num">255</span>,<span class="num">80</span>,<span class="num">80</span>], size: <span class="str">"8px"</span> },
+            attributes: f.attributes,
+            popupTemplate: { title: <span class="str">"M{magnitude}"</span>, content: <span class="str">"{place}"</span> }
+          }));
+        });
+      });
+    });
+  <span class="tag-h">&lt;/script&gt;</span>
+<span class="tag-h">&lt;/body&gt;</span>
+<span class="tag-h">&lt;/html&gt;</span></code></pre>
+    </div>
+
+    <div class="page-nav">
+      <a href="layer-management.html">← Tutorial 02: Layer Management</a>
+      <a href="api-reference.html" class="next">API Reference →</a>
+    </div>
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>Built by <strong>Eva Sharma</strong> · <a href="../index.html">Home</a></p>
+  </div>
+</footer>
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>
