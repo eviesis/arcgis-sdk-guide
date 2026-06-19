@@ -2,7 +2,7 @@
 
 An end-to-end tutorial series and API reference for developers new to the ArcGIS Maps SDK for JavaScript. Covers map rendering, layer management, and spatial queries. Published as a GitHub Pages site.
 
-**Live site:** `https://<your-username>.github.io/arcgis-sdk-guide/`
+**Live site:** `https://eviesis.github.io/arcgis-sdk-guide/`
 
 ---
 
@@ -22,53 +22,7 @@ arcgis-sdk-guide/
 └── README.md
 ```
 
----
 
-## Deploying to GitHub Pages
-
-### Step 1 — Create a GitHub repository
-
-1. Go to [github.com/new](https://github.com/new)
-2. Name the repository `arcgis-sdk-guide`
-3. Set it to **Public** (required for free GitHub Pages)
-4. Do not initialise with a README (you already have one)
-5. Click **Create repository**
-
-### Step 2 — Push the project
-
-In your terminal, from inside the project folder:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: ArcGIS SDK Developer Guide"
-git branch -M main
-git remote add origin https://github.com/<your-username>/arcgis-sdk-guide.git
-git push -u origin main
-```
-
-Replace `<your-username>` with your GitHub username.
-
-### Step 3 — Enable GitHub Pages
-
-1. Go to your repository on GitHub
-2. Click **Settings** → **Pages** (left sidebar)
-3. Under **Source**, select **Deploy from a branch**
-4. Choose branch: `main`, folder: `/ (root)`
-5. Click **Save**
-
-Your site will be live at `https://<your-username>.github.io/arcgis-sdk-guide/` within a few minutes.
-
-### Step 4 — Update your resume
-
-Once live, add the URL to the ArcGIS SDK Developer Guide project entry in your resume:
-
-```
-GitHub Pages: https://<your-username>.github.io/arcgis-sdk-guide/
-GitHub repo:  https://github.com/<your-username>/arcgis-sdk-guide
-```
-
----
 
 ## What the tutorials cover
 
